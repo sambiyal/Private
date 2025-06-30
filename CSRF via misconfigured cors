@@ -1,0 +1,59 @@
+Cross-Site Request Forgery (CSRF) via Insecure CORS Configuration on JSON API
+
+Description
+The application exposes JSON-based endpoints that are protected against traditional CSRF attacks by enforcing strict Content-Type checks (e.g., application/json). However, due to a misconfigured Cross-Origin Resource Sharing (CORS) policy, the application accepts and reflects arbitrary origins in the Access-Control-Allow-Origin header and also sets Access-Control-Allow-Credentials: true.
+
+This configuration bypasses the CSRF mitigation that relies on enforcing specific content types. A malicious third-party website can perform cross-origin JavaScript requests (using fetch() or XMLHttpRequest) to the vulnerable application's authenticated endpoints. Because the application incorrectly trusts any origin and allows credentials to be sent, CSRF is effectively possible on authenticated JSON endpoints.
+
+Impact
+Attackers can craft malicious web pages that send authenticated requests (e.g., POST, PUT, DELETE) to the application's backend JSON APIs on behalf of the logged-in victim.
+
+This can lead to unauthorized actions such as account takeover, data modification, privilege escalation, or financial transactions, depending on exposed API functionality.
+
+Standard CSRF tokens or origin verification become ineffective when CORS is misconfigured.
+
+This vulnerability can undermine the entire authentication boundary of the application.
+
+Likelihood
+High
+
+Exploitation is trivial from any external origin via JavaScript, as long as the victim is authenticated.
+
+Traditional defenses such as custom headers or content-type checks are nullified when the CORS policy allows any origin and credentials.
+
+Recommendation
+Restrict Access-Control-Allow-Origin to a finite list of trusted origins. Never reflect dynamic or user-supplied origins.
+
+Avoid setting Access-Control-Allow-Credentials: true unless absolutely required and only when origin is tightly controlled.
+
+Implement anti-CSRF protections (e.g., CSRF tokens or SameSite cookies) for all state-changing requests.
+
+Audit JSON API endpoints for exposure to cross-origin interactions and enforce appropriate origin and referer checks server-side.
+
+Supporting Evidence
+Request from Malicious Site:
+
+javascript
+Copy
+Edit
+fetch("https://vulnerable-app.com/api/update-email", {
+  method: "POST",
+  credentials: "include",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    email: "attacker@evil.com"
+  })
+})
+Observed Application Response:
+
+h
+Copy
+Edit
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://evil-attacker.com
+Access-Control-Allow-Credentials: true
+Content-Type: application/json
+
+{ "status": "email updated successfully" }
