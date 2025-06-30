@@ -1,0 +1,55 @@
+Vulnerability Report: CORS Misconfiguration with Access-Control-Allow-Credentials: true
+Vulnerability Name
+Insecure Cross-Origin Resource Sharing (CORS) Configuration with Credential Leakage Risk
+
+Description
+The target application has been identified as having an insecure CORS configuration. It accepts arbitrary values in the Origin request header—including null, random domains, and attacker-controlled origins—and reflects them in the Access-Control-Allow-Origin response header. Moreover, the response also includes Access-Control-Allow-Credentials: true.
+
+This configuration allows cross-origin requests from any domain while also including user credentials (such as cookies, HTTP authentication, and client-side certificates) in cross-site requests. This behavior violates the same-origin policy, potentially allowing malicious websites to interact with authenticated sessions of the application.
+
+Impact
+An attacker can host a malicious site and entice authenticated users to visit it. The malicious site can then send authenticated cross-origin requests to the vulnerable application, potentially leading to:
+
+Account compromise or unauthorized actions, depending on the application’s functionality.
+
+Data theft or exposure of sensitive user information, such as profile details, tokens, or financial data.
+
+Full session hijack scenarios, particularly if sensitive actions can be performed via XHR/fetch calls without CSRF protections.
+
+Risk of credential leakage is severe when Access-Control-Allow-Credentials is true in conjunction with a wildcard or reflected Access-Control-Allow-Origin.
+
+Likelihood
+High
+This issue is trivially exploitable using a simple malicious web page hosted on any external domain. No special tools are required. If a user is authenticated, exploitation can succeed without their knowledge.
+
+Recommendation
+Restrict Access-Control-Allow-Origin to specific, trusted domains. Avoid reflecting arbitrary origins.
+
+Do not use Access-Control-Allow-Credentials: true unless absolutely necessary, and only when a trusted origin is explicitly defined.
+
+Implement CSRF protection on state-changing endpoints, especially if credentials: true is used.
+
+Conduct a CORS policy review to validate intended cross-origin access scenarios and tighten as needed.
+
+Supporting Evidence
+Request:
+
+h
+Copy
+Edit
+GET /api/user-info HTTP/1.1
+Host: vulnerable-app.com
+Origin: https://evil-attacker.com
+Response:
+
+http
+Copy
+Edit
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://evil-attacker.com
+Access-Control-Allow-Credentials: true
+Content-Type: application/json
+
+{ "username": "john.doe", "email": "john@example.com" }
+Additionally, testing with Origin: null and Origin: random-site.xyz yielded similar results, confirming that the application is accepting any origin and reflecting it back.
+
