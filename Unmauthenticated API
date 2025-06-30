@@ -1,0 +1,58 @@
+Vulnerability Report: Unauthenticated Access to Backend APIs
+Vulnerability Name
+Unauthenticated Access to Backend API Endpoints
+
+Description
+The application has been found to expose backend API endpoints that are accessible without any form of authentication or authorization. These APIs are invoked by the frontend application to perform critical business logic (e.g., data retrieval, state changes, account actions), but they do not enforce server-side authentication checks.
+
+As a result, any external attacker or unauthenticated user can directly send HTTP requests to these backend endpoints and receive valid responses or perform unauthorized actions. This breaks the security assumption that only authenticated users can interact with protected APIs.
+
+Impact
+Depending on the nature of the APIs exposed, the impact may include:
+
+Sensitive data exposure (e.g., user details, transaction history, configuration data).
+
+Privilege escalation if the APIs perform actions without verifying identity.
+
+Unauthorized actions such as submitting requests, modifying records, or triggering workflows.
+
+Bypassing of front-end controls and authentication mechanisms.
+
+This exposure could severely compromise the integrity, confidentiality, and availability of the application.
+
+Likelihood
+High
+The APIs are accessible directly via tools such as curl, Postman, or browser-based fetch requests without any authentication tokens. This makes exploitation trivial for any attacker who discovers the API endpoints.
+
+Recommendation
+Enforce server-side authentication and authorization checks on all backend APIs, regardless of whether they are called from the frontend.
+
+Implement access control logic to ensure users can only access resources they are authorized to view or modify.
+
+Do not rely solely on frontend controls or hidden endpoints for securing API access.
+
+Log and monitor unauthorized access attempts to detect abuse or reconnaissance activity.
+
+Supporting Evidence
+Unauthenticated Request:
+
+http
+Copy
+Edit
+GET /api/v1/user/profile?user_id=1234 HTTP/1.1
+Host: api.vulnerable-app.com
+Response:
+
+json
+Copy
+Edit
+{
+  "user_id": "1234",
+  "email": "john.doe@example.com",
+  "role": "admin",
+  "phone": "9876543210"
+}
+No authentication headers (e.g., Authorization, Bearer token) were required.
+
+The endpoint disclosed sensitive user details without validating the requester's identity.
+
