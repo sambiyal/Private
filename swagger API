@@ -1,0 +1,91 @@
+[A05:2021 – Security Misconfiguration] – Unauthenticated Access to Swagger UI and OpenAPI Documentation
+Description:
+The application exposes its API documentation via the /swagger and /openapi.json endpoints without any form of authentication or access control. These endpoints provide a detailed overview of the available backend APIs, including request/response structures, available parameters, and HTTP methods.
+
+This exposure allows unauthenticated users (including external attackers) to easily enumerate API endpoints, understand the internal structure, and potentially exploit sensitive functionalities — especially if other security controls are weak or missing (e.g., lack of proper authorization on backend APIs).
+
+Impact:
+An attacker can gain detailed insights into the application's backend architecture and functionalities. If sensitive or administrative endpoints are listed and not properly secured, this could lead to:
+
+Abuse of undocumented or hidden APIs
+
+Facilitation of brute-force, fuzzing, and injection attacks
+
+Bypassing client-side restrictions
+
+Privilege escalation (if authorization is weak or absent)
+
+Business logic abuse
+
+This increases the application's overall attack surface and significantly lowers the bar for successful exploitation.
+
+Likelihood: High
+Given that no authentication or authorization is required to access the documentation, any external or internal user can retrieve the OpenAPI specification and understand the backend logic. Tools like Swagger UI make it even easier to test and interact with these APIs directly from the browser, increasing the chance of misuse.
+
+Recommendation:
+Restrict Access:
+
+Require authentication for accessing Swagger UI (/swagger) and OpenAPI (/openapi.json) documentation endpoints.
+
+Enforce role-based access control to limit exposure only to trusted internal users (e.g., developers, QA, or authorized testers).
+
+Disable in Production:
+
+Consider disabling Swagger/OpenAPI endpoints in production environments if not required.
+
+Audit for Sensitive APIs:
+
+Review exposed APIs to ensure no sensitive or administrative functionalities are accessible without proper authorization.
+
+Monitor Access:
+
+Implement logging and alerting for access to these endpoints to detect any unusual activity or reconnaissance attempts.
+
+---------------------------------------------------------------
+---------------------------------------------------------------
+OWASP Top 10: Broken Access Control
+Description
+The application has been identified to expose its Swagger UI and the openapi.json (or swagger.json) endpoint without any authentication or authorization controls. Swagger UI is an interactive API documentation tool that allows users to visualize and interact with the API's resources without any implementation logic. The openapi.json file contains the complete OpenAPI Specification, detailing all API endpoints, their expected parameters, response formats, and potentially sensitive operational details.
+
+This exposure means that any unauthenticated user or malicious actor can access comprehensive documentation of the application's entire API surface, including internal endpoints that may not be intended for public consumption.
+
+Impact
+The unrestricted access to Swagger UI and the OpenAPI specification file can lead to several severe impacts:
+
+Information Disclosure: Attackers gain a complete understanding of the application's API architecture, including hidden or internal endpoints, data models, and business logic. This significantly aids in reconnaissance phases of an attack.
+
+Increased Attack Surface: Detailed API documentation makes it easier for attackers to identify potential vulnerabilities such as unauthenticated endpoints, weak input validation, or logical flaws that might be exploited.
+
+Automated Exploitation: The structured nature of the openapi.json file can be used by automated tools to generate attack payloads, fuzz API endpoints, or craft sophisticated requests, accelerating the discovery and exploitation of vulnerabilities.
+
+Denial of Service (DoS): Knowledge of API endpoints can facilitate targeted DoS attacks by overwhelming specific, resource-intensive endpoints.
+
+Circumvention of Security Controls: Attackers can use the documentation to bypass client-side security measures by directly interacting with the API endpoints.
+
+Likelihood
+High. The likelihood of this vulnerability being exploited is high because:
+
+The exposed endpoints are easily discoverable (e.g., /swagger-ui.html, /v2/api-docs, /v3/api-docs).
+
+No authentication or authorization is required to access the sensitive information.
+
+Automated tools can quickly parse the openapi.json file to identify potential attack vectors.
+
+Recommendation
+To mitigate the risk associated with exposed Swagger UI and OpenAPI specification, the following recommendations should be implemented:
+
+Restrict Access in Production Environments:
+
+Disable in Production: The Swagger UI and openapi.json endpoint should be completely disabled or removed from production environments. API documentation is primarily a development and testing tool.
+
+IP Whitelisting: If access is absolutely necessary in production for specific operational purposes, restrict access to a limited set of trusted IP addresses (e.g., internal networks, VPNs).
+
+Authentication and Authorization: Implement robust authentication and authorization mechanisms for accessing Swagger UI and the openapi.json endpoint, even in non-production environments. Only authorized personnel should be able to view this information. This could involve integrating with the application's existing authentication system (e.g., OAuth2, JWT).
+
+Environment-Specific Configuration:
+
+Ensure that API documentation is only available in development and staging environments, and that its configuration is strictly controlled to prevent accidental exposure in production.
+
+Regular Security Audits:
+
+Periodically review the application's exposed endpoints and configurations to ensure that no sensitive information or tools are inadvertently made public.
