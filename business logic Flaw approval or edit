@@ -1,0 +1,48 @@
+[A04:2021 – Insecure Design] – Bypassing Business Logic to Re-Approve or Modify Approved Requests
+Description:
+The application implements client-side restrictions to prevent users from approving a request once it has already been approved. After approval, the UI disables the "Approve" button and hides or disables edit controls for critical fields.
+
+However, during testing, it was observed that this control is enforced only at the client/UI layer. By intercepting and replaying the API request manually (e.g., using tools like Burp Suite), it is still possible to:
+
+Re-approve a previously approved request by resubmitting the original approval API endpoint using the known interaction_id or request_id.
+
+Modify the call details or other request fields using the same or similar endpoint, even though the record is supposed to be locked post-approval.
+
+This constitutes a business logic flaw and represents a clear case of Insecure Design, where the server does not verify the state of the request before processing sensitive actions like approval or modification.
+
+Impact:
+Integrity violation: Users can manipulate already finalized records, compromising the integrity of business workflows.
+
+Process circumvention: Approval workflows and audit trails can be bypassed, allowing unauthorized or unintended modifications.
+
+Privilege escalation or fraud risk: If approvals are tied to financial, HR, or compliance processes, this can result in policy violations or financial manipulation.
+
+Audit and forensic challenges: Re-approval or hidden changes can evade detection unless deep server-side logging is implemented.
+
+Likelihood: High
+This vulnerability is easily exploitable by any user who has access to the approval functionality and can observe the API call. Tools like browser dev tools, Postman, or Burp Suite can be used to intercept and replay the approval or modification request. No special privileges are needed — only knowledge of the request ID or interaction ID is sufficient.
+
+Recommendation:
+Enforce Server-Side State Validation:
+
+Before processing approval or modification requests, the backend should verify that the request is still in a modifiable or approvable state.
+
+If a request has already been approved, the server must reject subsequent approval or edit attempts, regardless of how the request was made.
+
+Implement Proper Access Control:
+
+Use role and state-based access checks to ensure actions align with the current workflow state.
+
+Validate transitions explicitly (e.g., PENDING → APPROVED, not APPROVED → APPROVED or APPROVED → MODIFIED).
+
+Improve Audit Logging:
+
+Log all attempts to modify approved records, especially ones denied due to state violations.
+
+Include user ID, IP address, timestamp, and request payload in audit logs.
+
+Test for Business Logic Flaws:
+
+Include this scenario in QA regression tests and security testing pipelines.
+
+Simulate replay attacks and invalid state transitions regularly.
