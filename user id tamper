@@ -1,0 +1,66 @@
+[A01:2021 – Broken Access Control] – User ID Tampering in Approval, Edit, and Feedback Workflows
+Description:
+During testing, it was discovered that multiple backend API endpoints responsible for sensitive user actions — including approving requests, editing request details, and sending feedback — rely on a user_id or equivalent identity field submitted by the client.
+
+In all these flows:
+
+The frontend auto-fills the user_id field based on the currently logged-in user (e.g., User A).
+
+However, this value is not protected and can be tampered with using interception tools (e.g., Burp Suite).
+
+The backend fails to validate that the submitted user_id matches the authenticated session/user, and instead trusts the client-supplied value.
+
+This makes it possible for a malicious user to impersonate any other user (e.g., User B) by altering the user_id field and performing actions on their behalf, including:
+
+Re-approving already-approved requests
+
+Modifying protected request details
+
+Sending feedback as another user
+
+This is a critical business logic flaw resulting in identity spoofing, loss of data integrity, and broken audit trails.
+
+Impact:
+User Impersonation: Attackers can perform actions (approve, edit, send feedback) on behalf of other users, falsifying activity and bypassing user-specific controls.
+
+Privilege Escalation: If certain roles (e.g., managers, reviewers) have more impact when acting, attackers can forge high-privilege activity.
+
+Loss of Non-repudiation: Users can deny actions recorded under their ID since anyone could have spoofed them.
+
+Compliance and Audit Risk: Regulatory processes depending on identity-assured approvals or feedback will be invalid.
+
+Likelihood: High
+Exploitation requires only basic access to the application and tools such as Burp Suite or browser developer tools. The attacker intercepts a request, modifies the user_id in the JSON payload or query, and replays it. The backend processes the forged identity without verification.
+
+This applies to:
+
+POST /approve-request
+
+PATCH /edit-request
+
+POST /submit-feedback
+
+Recommendation:
+Enforce Server-Side Identity Binding:
+
+Do not rely on user_id from the request payload for sensitive operations.
+
+Derive the acting user's identity from the authenticated session (e.g., req.user.id) or from validated JWT/session tokens.
+
+Reject Mismatched Identity Requests:
+
+If user_id is present in the payload for traceability, validate it matches the authenticated user.
+
+Return a 403 Forbidden response on mismatch.
+
+Audit and Monitor:
+
+Add detection logic for unusual activity (e.g., one user sending requests using multiple user_id values).
+
+Enhance logging to include session identifiers, IPs, and timestamps for forensic analysis.
+
+Review Historical Actions:
+
+Conduct a review of past approval/edit/feedback activity for identity inconsistencies.
+
+Revalidate critical actions if necessary.
