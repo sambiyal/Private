@@ -1,1 +1,57 @@
 https://webhook.site/fb34fa13-a6e4-41f7-a276-361bd8251481
+
+
+Vulnerability Name
+Markdown Link Injection / Unvalidated Redirect via Markdown
+
+Description
+The application allows user-supplied content to be parsed and rendered as Markdown. While robust sanitization appears to be in place to prevent Cross-Site Scripting (XSS) by correctly escaping HTML tags (e.g., <script>), it does not sufficiently validate or sanitize hyperlinks embedded within the Markdown text. This enables an attacker to inject arbitrary URLs as clickable links that are then stored and displayed on the site. When a legitimate user clicks on such a crafted link, they are redirected to an external, attacker-controlled website.
+
+Impact
+The ability to inject and display arbitrary hyperlinks, leading to unvalidated redirects, can have several negative impacts:
+
+Phishing Attacks: Attackers can redirect users to malicious websites designed to mimic legitimate services (e.g., login pages for banking, email, or social media), tricking them into revealing credentials or sensitive information.
+
+Reputation Damage & Loss of Trust: Users may lose trust in the application if they are redirected to unwanted or malicious sites from what they perceive as a trusted source.
+
+Spread of Misinformation/Propaganda: Attackers can inject links to websites containing false information, harmful content, or propaganda, leveraging the perceived credibility of the legitimate application.
+
+Drive-by Downloads/Malware Distribution: Users can be unknowingly redirected to sites that automatically download malware or exploit browser vulnerabilities.
+
+Bypassing Security Controls: In some scenarios, an attacker might use this to bypass whitelisted domains or referer checks on other services if the initial click originates from a trusted domain.
+
+Likelihood
+High. The likelihood of this vulnerability being exploited is high because:
+
+It's generally easy for an attacker to identify fields that render Markdown and attempt to inject links.
+
+No sophisticated exploit techniques are required; just standard Markdown link syntax.
+
+The impact (redirection to a malicious site) is direct and can be immediately leveraged for phishing or other social engineering tactics.
+
+Prevention often requires explicit validation beyond just HTML escaping.
+
+Recommendation
+To mitigate the Markdown Link Injection vulnerability and prevent unvalidated redirects, the following recommendations should be implemented:
+
+Strict URL Whitelisting/Validation:
+
+Allowlisting: Implement a strict allowlist of permissible URL schemes (e.g., http, https, mailto) and, if possible, specific trusted domains that can be linked to. Any links outside this allowlist should be blocked or stripped.
+
+Input Validation: When processing user input that contains URLs, perform rigorous server-side validation to ensure the URL format is correct and adheres to allowed schemes/domains.
+
+Add rel="noopener noreferrer" to all User-Generated Links:
+
+Whenever Markdown links are converted to HTML (<a> tags), automatically add the rel="noopener noreferrer" attributes to prevent tabnabbing and leakage of Referer headers to the linked site.
+
+Implement an Interstitial Warning Page for External Links:
+
+Before redirecting users to any external website (especially those not on a strict allowlist), display an interstitial warning page. This page should inform the user that they are about to leave the current site and are being redirected to an external domain, giving them the option to proceed or cancel.
+
+Educate Users on External Links:
+
+Visually distinguish external links (e.g., with an external link icon) and educate users to be cautious when clicking links that lead outside the trusted domain.
+
+Consider Content Moderation:
+
+For applications where user-generated content is highly sensitive or public-facing, consider implementing a content moderation process (manual or AI-assisted) to review and approve submitted links before they are published.
