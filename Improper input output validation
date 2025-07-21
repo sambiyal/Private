@@ -34,3 +34,11 @@ Monitor logs for suspicious patterns in stored input.
 CWE-79: Improper Neutralization of Input During Web Page Generation (Cross-site Scripting)
 https://cwe.mitre.org/data/definitions/79.html
 
+Screenshot 1 – User Input (Injection Point):
+Shows that the application accepts raw JavaScript input (<script>alert(1)</script>) without any validation or sanitization at the time of submission.
+
+Screenshot 2 – BurpSuite Request/Response:
+Confirms that the malicious payload is stored and returned verbatim in the API response. This proves the backend is not applying any sanitization or encoding before storing or returning the data.
+
+Screenshot 3 – Application Page Rendering:
+Displays the JavaScript code visibly in the frontend (e.g., &lt;script&gt;alert(1)&lt;/script&gt;), confirming that output encoding on the client side is preventing immediate execution — but also indicating that the payload is stored in raw form and only encoded at display time.
