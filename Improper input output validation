@@ -6,13 +6,7 @@ The application fails to properly sanitize user input before storing it in the b
 User input containing HTML or JavaScript (e.g., <script>alert(1)</script>) is accepted and stored without server-side sanitization. The frontend safely encodes it (e.g., &lt;script&gt;) during rendering, preventing execution. However, raw payloads remain in the backend, retrievable via APIs or internal services. If another system consumes and displays this data without proper output encoding, stored malicious code can execute—leading to a delayed or indirect stored XSS attack.
 
 🎯 Impact
-Potential stored XSS in any application consuming the same backend data.
-
-Cross-service attack surface expansion in microservice environments.
-
-Violates secure coding and data-handling standards.
-
-Risk of future exploitation if frontend encoding is altered or removed.
+Although the application’s frontend prevents immediate execution of HTML/JavaScript payloads through output encoding, the lack of server-side sanitization introduces a high-risk stored XSS condition across trust boundaries. If any other internal or third-party application, report generator, email engine, or admin interface consumes this raw data without proper encoding, malicious scripts can execute in those contexts.
 
 🧪 Steps to Reproduce
 Submit input such as <script>alert(1)</script> via any form or user field.
