@@ -1,0 +1,42 @@
+ulnerability: Input/Output Validation
+📄 Summary
+The application fails to properly sanitize user input before storing it in the backend database. While the frontend performs HTML output encoding—preventing immediate execution of malicious content—the raw, unsanitized data remains stored. This introduces a latent stored XSS risk, especially if the same data is consumed by other applications or internal tools that do not implement proper output encoding. Although there’s no direct impact in the current application interface, this creates a cross-application security risk.
+
+⚙️ Technical Details
+User input containing HTML or JavaScript (e.g., <script>alert(1)</script>) is accepted and stored without server-side sanitization. The frontend safely encodes it (e.g., &lt;script&gt;) during rendering, preventing execution. However, raw payloads remain in the backend, retrievable via APIs or internal services. If another system consumes and displays this data without proper output encoding, stored malicious code can execute—leading to a delayed or indirect stored XSS attack.
+
+🎯 Impact
+Potential stored XSS in any application consuming the same backend data.
+
+Cross-service attack surface expansion in microservice environments.
+
+Violates secure coding and data-handling standards.
+
+Risk of future exploitation if frontend encoding is altered or removed.
+
+🧪 Steps to Reproduce
+Submit input such as <script>alert(1)</script> via any form or user field.
+
+Confirm it's stored by viewing the API response or raw database content.
+
+Observe it’s not executed on the frontend due to output encoding.
+
+Inject the same payload into a system that does not encode on output.
+
+Payload executes, confirming a stored XSS scenario.
+
+✅ Recommendation
+Implement server-side input sanitization before saving user content.
+
+Ensure output encoding is enforced across all consuming systems.
+
+Apply contextual encoding based on rendering context (HTML, attributes, JavaScript).
+
+Use Content Security Policy (CSP) to mitigate XSS impact.
+
+Monitor logs for suspicious patterns in stored input.
+
+🆔 CWE Reference
+CWE-79: Improper Neutralization of Input During Web Page Generation (Cross-site Scripting)
+https://cwe.mitre.org/data/definitions/79.html
+
