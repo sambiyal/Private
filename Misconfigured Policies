@@ -1,0 +1,78 @@
+During the wireless security assessment, two major policy violations were identified on SSIDs TGuest and DAPiau, both of which were supposed to be tightly controlled environments:
+
+Case 1: TGuest SSID Allows Access to Corporate Services
+The SSID TGuest is intended for isolated guest Wi-Fi access, and corporate policy specifies that devices connected to it (including corporate-issued laptops) should not have any access to the internet or internal resources.
+
+However, during testing:
+
+A corporate laptop connected to the TGuest SSID was able to successfully reach various external portals, including:
+
+https://login.microsoftonline.com
+
+https://onedrive.live.com
+
+https://<company>.sharepoint.com
+
+This implies incomplete egress filtering or an unmonitored allowlist that unintentionally permits corporate SaaS resources.
+
+This could allow data exfiltration from managed devices through guest Wi-Fi, bypassing firewall policies, CASB logging, or DLP controls.
+
+Case 2: TGuest and DAPiau SSIDs Have No Internet Restrictions
+It was observed that devices connected to both TGuest and DAPiau SSIDs had full, unrestricted internet access, despite expectations or policies that these networks should:
+
+Restrict access to only approved business services.
+
+Block access to personal or high-risk categories (e.g., social media, gambling, file-sharing).
+
+Testing confirmed that sites like:
+
+https://youtube.com
+
+https://mega.nz
+
+https://stake.com
+
+https://facebook.com
+were fully accessible from both SSIDs.
+
+This defeats the purpose of segmentation and opens avenues for:
+
+Non-compliant internet usage
+
+Malware downloads or command & control beaconing
+
+Shadow IT and personal device abuse
+
+💣 Impact:
+Devices on guest networks may bypass security controls and connect to corporate SaaS environments or conduct unaudited data transfers.
+
+Users can access unfiltered internet, exposing the environment to phishing, malware, or unauthorized resource usage.
+
+Violates least-privilege and network segmentation principles, increasing the attack surface.
+
+May result in compliance failures (e.g., ISO 27001, PCI DSS, NIST, etc.) if policies demand network segregation and content filtering.
+
+🎯 Likelihood:
+High
+
+This issue was observed consistently across multiple sessions, with no endpoint or NAC enforcement in place. An attacker or insider with physical presence could exploit this easily using a Wi-Fi-enabled device.
+
+✅ Recommendation:
+Review and enforce network segmentation policies on all guest and restricted SSIDs.
+
+Configure firewall ACLs to block all outbound traffic from TGuest and DAPiau, unless explicitly allowed.
+
+For TGuest, restrict outbound access to DNS/NTP and portal whitelists only (if captive portal is in use).
+
+Implement content filtering (via Zscaler, Umbrella, FortiGuard, etc.) to block high-risk or non-business domains.
+
+Consider integrating Network Access Control (NAC) or 802.1X to dynamically enforce posture-based rules.
+
+Log all outbound access from guest SSIDs for anomaly detection.
+
+📸 Supporting Evidence (Screenshot Captions):
+Screenshot 1: Corporate laptop connected to TGuest SSID and successfully reaching login.microsoftonline.com and onedrive.live.com.
+
+Screenshot 2: Browser screenshots from devices on TGuest and DAPiau accessing unrestricted websites such as YouTube, Facebook, and Mega.nz.
+
+Screenshot 3: Wireshark or netstat output showing successful HTTP/HTTPS sessions to non-approved destinations from guest networks.
