@@ -1,0 +1,40 @@
+Vulnerability Name:
+Wi-Fi Network Uses Shared Static Pre-Shared Key (PSK) Without Rotation or Per-User Access Controls
+
+📝 Description:
+The Wi-Fi SSID CorpWiFi is configured to use a shared static pre-shared key (PSK) for authentication. While the network supports modern encryption protocols (e.g., WPA2 and WPA3), all users authenticate using the same password, and there is no implementation of password rotation, uniqueness, or individual access control.
+
+This approach introduces a significant security weakness by enabling uncontrolled access, where users cannot be individually identified, audited, or revoked. It also exposes the organization to long-term risks if the PSK is leaked, cached on personal devices, or known by former employees or third-party vendors.
+
+💣 Impact:
+Lack of individual accountability — cannot track or revoke user access individually.
+
+Increased risk of unauthorized access by ex-employees, guests, or leaked credentials.
+
+Potential for widespread credential reuse, including on BYOD devices.
+
+No visibility or control over who is connecting or when, undermining zero-trust principles.
+
+May facilitate credential sharing between users or departments.
+
+🎯 Likelihood:
+High
+
+Given the use of a single, static password across all users, the likelihood of the PSK being leaked, reused, or abused is high. Attackers within physical range can also exploit this weakness via social engineering, passive sniffing (for handshake capture), or rogue AP techniques.
+
+✅ Recommendation:
+Migrate to WPA2/WPA3-Enterprise (802.1X) using per-user authentication via RADIUS, with certificate or credential-based login.
+
+If personal-mode (PSK) authentication must remain in place:
+
+Enforce a password rotation policy (e.g., every 30–60 days).
+
+Leverage Individual PSKs (iPSK) if supported by the wireless infrastructure to assign unique keys per user or device.
+
+Deploy MAC filtering, VLAN segmentation, or access control lists (ACLs) to restrict access by device or role.
+
+Integrate onboarding portals or NAC (Network Access Control) to securely manage device enrollment.
+
+📸 Supporting Evidence (Screenshot Caption):
+Screenshot: Configuration page from Aruba AP (192.168.32.32) showing SSID CorpWiFi using a shared PSK for both WPA2 and WPA3 security modes, with no user-specific access control or password rotation policies in place.
+
