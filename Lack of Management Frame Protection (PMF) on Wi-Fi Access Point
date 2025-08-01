@@ -1,0 +1,56 @@
+Vulnerability Name:
+Lack of Management Frame Protection (PMF) on Wi-Fi Access Point
+
+📝 Description:
+The targeted Wi-Fi Access Point (SSID: CorpWiFi, BSSID: 00:11:22:33:44:55) was found to have Protected Management Frames (PMF) disabled. PMF, defined in IEEE 802.11w, protects critical Wi-Fi management frames (such as deauthentication, disassociation, and action frames) from spoofing and tampering.
+
+Without PMF, attackers within radio range can inject forged management frames to disconnect clients or manipulate wireless behavior, which facilitates Evil Twin, Man-in-the-Middle (MitM), and DoS attacks.
+
+💣 Impact:
+Clients can be forcefully disconnected (DoS) using deauthentication/disassociation attacks.
+
+Enables Evil Twin attacks, where clients connect to rogue APs impersonating the legitimate one.
+
+Can be exploited to bypass network segmentation by luring devices onto attacker-controlled APs.
+
+Undermines the confidentiality and integrity of enterprise Wi-Fi infrastructure.
+
+🎯 Likelihood:
+High
+
+The attack is simple to execute using tools like aireplay-ng or mdk4, and does not require credentials or access to the internal network. Most off-the-shelf wireless adapters can perform this attack from public areas near the target environment.
+
+✅ Recommendation:
+Enable PMF (802.11w) in "Required" mode for all WPA2 and WPA3 SSIDs.
+
+Ensure all client devices support PMF to avoid compatibility issues.
+
+Monitor for management frame injection and unauthorized disassociation activity using Wireless Intrusion Detection Systems (WIDS).
+
+Regularly update AP firmware to enforce modern security standards.
+
+📸 Supporting Evidence (Screenshot Caption):
+Screenshot: Wi-Fi beacon frame captured with Wireshark, showing 802.11w PMF field set to 0 (disabled) for SSID CorpWiFi, BSSID 00:11:22:33:44:55.
+
+
+(Image not attached — replace # with actual screenshot in report)
+
+Let me know if you want to generate this into a PDF report section, or include it in a broader Wi-Fi pentest findings template.
+
+
+
+
+
+
+
+
+
+Ask ChatGPT
+
+
+
+Tools
+
+
+
+ChatGPT 
