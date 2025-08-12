@@ -28,27 +28,7 @@ Likelihood:
 High – The attack can be automated and requires no special privileges beyond access to the file upload CoP feature.
 
 Recommendation:
-Apply Uniform Rate Limiting
-
-Enforce consistent rate limiting across all CoP lookup methods (file upload and manual entry).
-
-Use per-IP and per-user limits, with separate thresholds for bulk operations.
-
-Introduce Bulk Lookup Safeguards
-
-Require additional verification or approvals for bulk file uploads.
-
-Implement server-side batching with audit logging.
-
-Monitoring & Alerting
-
-Track unusual CoP lookup patterns (e.g., large file uploads, repeated high-volume queries).
-
-Alert security teams for investigation.
-
-CAPTCHA / MFA Integration
-
-Require additional verification for high-volume CoP lookups to deter automation.
+The application should implement consistent and robust rate limiting across all Confirmation of Payee (CoP) lookup methods, including both manual entry and file upload functionality, to prevent abuse and excessive resource consumption. Uniform server-side request throttling should be applied with strict per-user and per-IP thresholds, ensuring these limits are enforced regardless of the request method. In addition, the system should log and monitor all high-volume lookup activity, generate alerts for potential misuse, and introduce safeguards such as CAPTCHAs, multi-factor verification, or manual approval workflows for unusually large requests. Standardizing these measures will help prevent mass account enumeration, protect sensitive customer information, and maintain a consistent security posture across the platform.
 
 Evidence:
 Manual Entry CoP Lookup: Rate limit triggered after ~200 requests.
