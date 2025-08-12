@@ -1,0 +1,48 @@
+Finding: Use of Vulnerable Third-Party Libraries
+Severity: High
+Category: A06:2021 – Vulnerable and Outdated Components (OWASP Top 10)
+
+Description
+The application was found to be using multiple outdated third-party libraries containing known security vulnerabilities:
+
+DOMPurify 2.5.6 – Vulnerable to Mutation XSS and prototype pollution (CVE-2024-47875), allowing maliciously crafted HTML to bypass sanitization and execute arbitrary JavaScript.
+
+DOMPurify 3.1.6 – Affected by the same mXSS issue (CVE-2024-47875).
+
+Bootstrap 4.6.2 – Vulnerable to a Cross-Site Scripting (XSS) flaw in the Carousel component (CVE-2024-6531) due to insufficient sanitization of certain attributes.
+
+jQuery UI 1.12.1 – Contains multiple XSS vulnerabilities, including issues in the Datepicker widget (CVE-2021-41182, CVE-2021-41183, CVE-2021-41184) and checkboxradio component (CVE-2022-31160).
+
+Vue 2.7.16 – Affected by a Regular Expression Denial of Service (ReDoS) vulnerability in HTML parsing (CVE-2024-9506) and an XSS risk via the vue-template-compiler (CVE-2024-6783).
+
+These vulnerabilities are publicly documented, actively known, and could be exploited if user-controlled input is processed by these libraries in a vulnerable manner.
+
+Impact
+Exploitation of these vulnerabilities could allow:
+
+Cross-Site Scripting (XSS): Execution of arbitrary JavaScript in users’ browsers, enabling credential theft, session hijacking, or UI redressing attacks.
+
+Prototype Pollution: Injection of malicious properties into JavaScript object prototypes, potentially altering application behavior and enabling indirect XSS.
+
+Denial of Service: The ReDoS vulnerability in Vue could cause performance degradation or service disruption.
+
+Reconnaissance: Attackers could study library versions to craft targeted exploits against known weaknesses.
+
+Because these components are client-facing, exploitation would occur in the context of the victim’s browser, making it a high-impact vector for session compromise or data theft.
+
+Recommendation
+Upgrade vulnerable libraries to the latest patched versions:
+
+DOMPurify → ≥ 3.2.6
+
+Bootstrap → latest stable release addressing CVE-2024-6531
+
+jQuery UI → ≥ 1.13.2
+
+Vue → apply patches for CVE-2024-9506 and CVE-2024-6783, or migrate to Vue 3+
+
+Review dependency management processes to ensure security patches are applied promptly.
+
+Implement SCA (Software Composition Analysis) tools in CI/CD pipelines to detect outdated and vulnerable dependencies early.
+
+Validate and sanitize all user-supplied content server-side, in addition to client-side protections, to provide layered defense against XSS and injection attacks.
