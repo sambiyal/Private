@@ -1,0 +1,75 @@
+Account Number Enumeration
+
+Technical Details:
+The Confirmation of Payee (CoP) functionality reveals distinct system responses depending on whether the entered account number exists in the system.
+
+When a valid account number & BSB is provided with a wrong name, the system returns:
+"Account name not matched to the account"
+
+When a valid account number, BSB, and correct account name is provided, the system returns:
+"Account name matched"
+
+When an invalid account name, valid BSB, and incrementally guessed account number is entered:
+
+If the account exists → "Account name not found"
+
+If the account does not exist → "Account does not exist"
+
+This behavior enables an attacker to enumerate valid account numbers by observing differences in the application’s responses.
+
+The root cause is the absence of generic error messaging and uniform response handling for all account validation failures.
+
+Impact:
+
+Enables attackers to perform brute-force enumeration of account numbers for a given BSB.
+
+Could be used to harvest valid bank account details for fraudulent transactions, social engineering, or further targeted attacks.
+
+May lead to privacy violations and compliance breaches under financial regulations (e.g., PCI DSS, GDPR, or equivalent).
+
+Recommendation:
+
+Implement Generic Error Messages
+
+Return a single, generic response for all failed validations, such as:
+"The account details provided could not be verified"
+
+Rate Limiting & Monitoring
+
+Implement per-IP and per-account rate limits for CoP lookups.
+
+Monitor for unusual lookup patterns and alert security teams.
+
+Input Validation & Throttling
+
+Use CAPTCHA after multiple failed attempts.
+
+Audit Logs
+
+Ensure detailed logs of all lookup attempts for incident response.
+
+Evidence:
+
+Screenshots showing the different responses:
+
+Wrong name + valid BSB & account → “Account name not matched”
+
+Correct details → “Account name matched”
+
+Invalid name + valid BSB & guessed account → “Account name not found”
+
+Invalid name + valid BSB & non-existent account → “Account does not exist”
+
+References:
+
+OWASP Top 10 – 2021:
+
+A01:2021 – Broken Access Control
+
+A05:2021 – Security Misconfiguration
+
+A07:2021 – Identification and Authentication Failures
+
+OWASP – Testing for Account Enumeration
+
+OWASP Testing Guide: Information Leakage and Improper Error Handling
