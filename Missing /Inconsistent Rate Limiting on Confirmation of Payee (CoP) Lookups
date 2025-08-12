@@ -1,0 +1,67 @@
+Missing / Inconsistent Rate Limiting on Confirmation of Payee (CoP) Lookups
+
+Description:
+During testing of the Confirmation of Payee (CoP) functionality, it was identified that rate limiting controls are inconsistently applied across different lookup methods:
+
+File Upload (Verify)
+
+When performing CoP lookups via the bulk file upload “verify” feature, there is no rate limit in place.
+
+Testing confirmed that the application continued to process requests beyond 1,000+ entries without any throttling or rejection.
+
+Manual Lookup (Form Input)
+
+When performing CoP lookups via the manual input method (entering Account Name, BSB, and Account Number), a rate limit is enforced at approximately 200 requests per session/IP, after which the response indicates the limit has been reached.
+
+The absence of consistent rate limiting allows attackers to perform high-volume CoP lookups via the file upload method without detection or restriction.
+
+Impact:
+Enumeration Risk: Attackers can automate CoP lookups using the file upload method to verify large sets of account details.
+
+Data Harvesting: Bulk enumeration could be used to validate account holder names, aiding in social engineering, targeted phishing, or payment fraud.
+
+Compliance Risk: Failure to restrict bulk lookups may violate financial regulatory requirements regarding customer data protection.
+
+Inconsistent Security Posture: The presence of rate limits in one functionality but not in another suggests oversight and may indicate similar gaps in other high-value endpoints.
+
+Likelihood:
+High – The attack can be automated and requires no special privileges beyond access to the file upload CoP feature.
+
+Recommendation:
+Apply Uniform Rate Limiting
+
+Enforce consistent rate limiting across all CoP lookup methods (file upload and manual entry).
+
+Use per-IP and per-user limits, with separate thresholds for bulk operations.
+
+Introduce Bulk Lookup Safeguards
+
+Require additional verification or approvals for bulk file uploads.
+
+Implement server-side batching with audit logging.
+
+Monitoring & Alerting
+
+Track unusual CoP lookup patterns (e.g., large file uploads, repeated high-volume queries).
+
+Alert security teams for investigation.
+
+CAPTCHA / MFA Integration
+
+Require additional verification for high-volume CoP lookups to deter automation.
+
+Evidence:
+Manual Entry CoP Lookup: Rate limit triggered after ~200 requests.
+
+File Upload CoP Lookup: Successfully processed 1,000+ entries without rate limiting or blocking.
+
+Screenshots and request logs retained from both test cases.
+
+References:
+OWASP API Security Top 10 – 2023:
+
+API4:2023 – Unrestricted Resource Consumption
+
+API10:2023 – Unsafe Consumption of APIs
+
+OWASP Testing Guide – Testing for Rate Limiting
