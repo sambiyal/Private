@@ -1,0 +1,43 @@
+Finding: Staging Environment Accessible Over the Internet
+Severity: Low
+Category: Information Disclosure / Attack Surface Expansion
+
+Description
+A staging environment for the application was identified as being accessible from the public internet. This environment is protected by authentication and two-factor authentication (2FA), which reduces the likelihood of unauthorized access.
+
+While staging environments are often used for development, testing, and UAT purposes, exposing them externally increases the application’s attack surface. Even with authentication controls, staging systems may:
+
+Contain untested or pre-release features with undiscovered vulnerabilities.
+
+Run with relaxed security configurations compared to production.
+
+Use test data that could still contain sensitive information.
+
+Provide attackers with an opportunity to map internal APIs and workflows.
+
+Impact
+The presence of an externally accessible staging environment, even with authentication and 2FA, slightly increases the risk that:
+
+Attackers could attempt credential stuffing or brute-force attacks against staging accounts.
+
+Vulnerabilities in staging could be discovered and later targeted in production.
+
+Misconfigurations could leak information that aids an attacker.
+
+Given the layered authentication controls, the likelihood of exploitation is low, but the impact could be moderate if staging security is weaker than production.
+
+Evidence
+Staging subdomain accessible via HTTPS over the public internet.
+
+Login page requires username/password and 2FA code.
+
+Verified 2FA prompt and successful redirection to staging application dashboard upon valid authentication.
+
+Recommendation
+Restrict network access to staging via VPN or IP allowlisting to reduce exposure.
+
+Ensure staging security controls match production standards.
+
+Use only masked or synthetic data in staging.
+
+Maintain logging and monitoring on staging for suspicious activity.
