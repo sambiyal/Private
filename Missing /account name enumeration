@@ -1,0 +1,73 @@
+Description
+During the payment process within an authenticated session, the system checks whether the payee name entered by the user matches the name registered to the account identifier (such as a phone number or email address).
+
+Testing showed that if a valid phone number or email is provided, but the name does not match:
+
+The payment is halted (expected), but
+
+The application returns the actual registered name for that identifier.
+
+This effectively turns the payment validation step into an account name lookup tool for any authenticated user.
+
+Steps to Reproduce
+Log in to the application with valid credentials.
+
+Initiate a payment to any recipient.
+
+Enter:
+
+Valid phone number or email belonging to a target account.
+
+Incorrect/random name instead of the correct account holder’s name.
+
+Submit the payment request.
+
+Observe:
+
+Payment is not processed.
+
+The system displays the correct registered name associated with the phone number or email.
+
+Repeat with:
+
+Known identifiers.
+
+Randomly generated identifiers to discover active accounts.
+
+Impact
+Any authenticated user can:
+
+Confirm whether a phone number or email belongs to a registered account.
+
+Enumerate real account holder names linked to those identifiers.
+
+Perform bulk enumeration via file uploads or automated tools.
+
+Use the collected data for:
+
+Phishing and targeted fraud.
+
+Identity theft.
+
+Reconnaissance for social engineering campaigns.
+
+When combined with automation, this flaw allows large-scale data harvesting with minimal effort.
+
+Evidence
+Evidence 1: Payment file uploaded after login containing recipient identifiers and incorrect names.
+
+Evidence 2: Automated replay of the request via Burp Intruder (1000+ times).
+
+Evidence 3 & 4: Intruder responses consistently reveal correct names for valid identifiers.
+
+Evidence 5: Application interface shows processed payment checks with the revealed names.
+
+Recommendation
+Only reveal the recipient’s name if both the provided identifier and name exactly match.
+
+For mismatches, display a generic error message (e.g., “Details do not match”) without revealing the correct registered name.
+
+Apply strict rate limiting to payment validation endpoints, even for authenticated users.
+
+Monitor for high-volume lookups and flag unusual patterns.
+
