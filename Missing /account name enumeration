@@ -1,14 +1,13 @@
 Description
-During the payment process within an authenticated session, the system checks whether the payee name entered by the user matches the name registered to the account identifier (such as a phone number or email address).
+The application’s payment process contains a logic flaw that allows authenticated users to discover the real registered name of any account holder linked to a valid phone number or email address.
 
-Testing showed that if a valid phone number or email is provided, but the name does not match:
+When initiating a payment, the system is expected to verify that the provided payee name matches the account identifier before proceeding. However, if the user supplies a valid phone number or email but an incorrect or random name, the system:
 
-The payment is halted (expected), but
+Halts the payment (intended behavior), but
 
-The application returns the actual registered name for that identifier.
+Displays the correct registered name associated with that identifier (unintended behavior).
 
-This effectively turns the payment validation step into an account name lookup tool for any authenticated user.
-
+This behavior effectively turns the payment validation step into an account name lookup service available to any logged-in user. By repeatedly submitting identifiers, an attacker can enumerate the names of registered account holders at scale.
 Steps to Reproduce
 Log in to the application with valid credentials.
 
@@ -54,13 +53,14 @@ Reconnaissance for social engineering campaigns.
 When combined with automation, this flaw allows large-scale data harvesting with minimal effort.
 
 Evidence
-Evidence 1: Payment file uploaded after login containing recipient identifiers and incorrect names.
+Screenshot 1:
+Preparation of a payment file containing payee information, including phone numbers and intentionally incorrect payee names for testing.
 
-Evidence 2: Automated replay of the request via Burp Intruder (1000+ times).
+Screenshot 2:
+Upload of the prepared payment file to the application’s payment processing feature within an authenticated session.
 
-Evidence 3 & 4: Intruder responses consistently reveal correct names for valid identifiers.
-
-Evidence 5: Application interface shows processed payment checks with the revealed names.
+Screenshot 3:
+Application response halts the payment due to a name mismatch but reveals the actual registered account holder’s name associated with the provided phone number.
 
 Recommendation
 Only reveal the recipient’s name if both the provided identifier and name exactly match.
