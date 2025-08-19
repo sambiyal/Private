@@ -1,0 +1,123 @@
+Finding: Shared “Default User Password” in Litera Cloud Migrator (iManage)
+
+Severity: High
+Category/Mappings:
+
+OWASP Top 10: A07 – Identification & Authentication Failures; A05 – Security Misconfiguration
+
+OWASP Thick Client: Authentication, Credential Management, Information Disclosure (client-side)
+
+CWE-1392 – Use of Default Credentials; CWE-798/259 (Hard-coded/Shared Passwords)
+
+Description
+
+The Migration Settings → Users → Default User Password field is used by Cloud Migrator when migrating to iManage, especially where impersonation is unavailable. In practice, projects often set the same password for many (or all) users so the tool can complete user-scoped actions (e.g., creating “My Matters”/“Favorites”) during migration.
+
+From a security perspective this creates a single, shared credential that permits interactive sign-in as end users (until it’s rotated/disabled). The value is visible to operators in the UI and is typically stored in project settings/state for reuse, increasing exposure.
+
+Evidence
+
+Screenshot provided shows Migration Settings → Users → Default User Password populated with a plaintext value.
+
+Application code and UI patterns elsewhere indicate credentials are read/written to the UI and likely persisted in local configuration for subsequent use.
+
+Impact Details
+
+Account Takeover at Scale
+Anyone with knowledge of the default can authenticate as any migrated user (until reset), bypassing SSO/conditional access if password login is enabled.
+
+Lateral & Data Access Risk
+User-context access to iManage repositories can expose confidential matter content, emails, documents, or enable destructive operations.
+
+Operational Fragility
+Using different defaults across libraries or leaving defaults in place post-cutover can cause credential mismatches and locked accounts.
+
+Credential Sprawl
+The shared secret may leak via screenshots, helpdesk tickets, email, configs, or logs—especially because it is displayed in plaintext.
+
+Overall Risk: High likelihood (process/people), High impact (broad user impersonation and data exposure).
+
+Illustrative CVSS v3.1 (worst-case): 8.8 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N)
+
+Exploitation Scenarios
+
+An operator or contractor notes the default during migration and later signs into end-user accounts.
+
+A screenshot of migration settings is shared for troubleshooting; the password is copied and reused.
+
+The default is reused across environments (UAT/Prod); compromise in one leads to compromise in another.
+
+Recommendation (Mitigation & Hardening)
+Prefer Not Using End-User Passwords
+
+Use impersonation where supported (e.g., Work in the Cloud/server impersonation).
+
+If user context is unavoidable, limit usage to dedicated service/virtual accounts rather than real end-users.
+
+If a Default Must Be Used (temporary)
+
+Make it temporary and unique to the project; never reuse across orgs or environments.
+
+Restrict login surface during the window:
+
+Enforce SSO for all normal users; allow password login only for the subset strictly needed.
+
+Apply IP allow-listing or maintenance windows for migration traffic.
+
+Protect the secret
+
+Store in a secrets vault (e.g., DPAPI/Credential Manager/enterprise vault), never in plaintext config or tickets.
+
+Mask the UI field (password control), and prevent copying where feasible.
+
+Ensure logging never records passwords or full connection strings.
+
+Post-Migration Cleanup (mandatory)
+
+Mass-reset all affected user passwords to random, unique values or disable password login and enforce SSO only.
+
+Verify no interactive password logins remain possible with the old default.
+
+Audit authentication logs for anomalous sign-ins around the migration window.
+
+Documented Runbook
+
+Pre-migration: approvals, default creation, SSO/password toggles, allow-lists.
+
+During: secret distribution controls, change management, limited operator access.
+
+After: resets/disable, validation checklist, audit evidence retained.
+
+Validation Steps (for the fix)
+
+Attempt to sign in to a migrated user with the former default → fails.
+
+Verify tenant/auth policy: password login disabled (SSO enforced) for regular users.
+
+Review logs: no successful password-based logins after cutover; only service accounts allowed (if any).
+
+Configuration repository: no plaintext secrets; vault references only.
+
+Pentest: try password spraying using the former default across users → no hits.
+
+Additional Related Observations (Medium)
+
+No obfuscation/anti-tamper in .NET assemblies → facilitates reverse engineering and patching of client behavior (licensing, API flows).
+
+Action: apply .NET obfuscation (identifier renaming, string encryption, control-flow) and runtime integrity checks; keep all trust decisions server-side.
+
+Connection-string safety (from ConfigureDatabase form): risk of option smuggling if strings are built by concatenation; and NTLM relay risk when using Integrated Security to arbitrary hosts.
+
+Action: build with SqlConnectionStringBuilder; allow-list servers; enforce Encrypt=true; TrustServerCertificate=false; avoid IP literals; Kerberos-only where possible.
+
+References
+
+OWASP Testing Guide (Thick Client Testing) – Authentication, Credential Management, Reverse Engineering & Tampering
+
+OWASP Top 10 (2021) – A07 Identification & Authentication Failures; A05 Security Misconfiguration
+
+CWE-1392 – Use of Default Credentials; CWE-798/259 – Hard-coded/Shared Passwords
+
+Executive Summary (one paragraph)
+
+Litera Cloud Migrator’s Default User Password feature, while operationally convenient for iManage migrations, introduces a high-risk shared credential that enables broad user impersonation if mishandled. The product does not automatically neutralize this risk; security depends on your runbook (temporary use only, restricted exposure, and immediate post-migration resets/SSO enforcement). Implement the above mitigations and validate with authentication auditing to close the window of exposure.
