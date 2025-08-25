@@ -1,4 +1,0 @@
-Improper access control
-
-
-o address this issue, the application must enforce strict server-side authorization checks for every privileged action. Each API endpoint should validate the user’s role or permission claims contained within the JWT and ensure that only accounts with the appropriate privileges, such as read-write users, are able to perform sensitive operations. Relying solely on UI restrictions or obscurity is insufficient; access control must be consistently applied on the backend to prevent misuse. Implementing a centralized role-based access control (RBAC) or attribute-based access control (ABAC) system will help standardize these checks and reduce the risk of inconsistencies across endpoints. Additionally, the application should adopt secure coding practices, enforce the principle of least privilege, and integrate automated testing to verify that lower-privileged tokens cannot execute higher-privileged actions.

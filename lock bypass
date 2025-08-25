@@ -1,0 +1,49 @@
+roken Access Control – Client-Side Lock Bypass on Investigation Records
+
+Technical Details
+
+The application implements a locking mechanism to prevent multiple users from simultaneously editing the same Investigation ID. This is intended to ensure data integrity by restricting access to a single user until the record is released.
+
+During testing, it was observed that this lock enforcement is performed only on the client-side. The application UI prevents users from opening or editing an already locked investigation, but this validation can be bypassed by manipulating client-side controls or intercepting/modifying the request in tools such as Burp Suite.
+
+As a result, multiple users can access and make changes to the same investigation simultaneously, despite the UI showing it as locked. This confirms that the server does not properly validate whether a record is locked before processing user requests.
+
+This aligns with OWASP Top 10 2021 – A01: Broken Access Control, specifically the subcategory of Client-Side Enforcement of Server-Side Security.
+
+Impact Details
+
+The lack of proper server-side validation allows any user to bypass the intended record-locking mechanism. This introduces several risks:
+
+Data Integrity Issues: Multiple users editing the same record concurrently can overwrite each other’s changes, leading to loss of critical information.
+
+Inconsistent Business Workflow: The application’s core design to prevent simultaneous edits is undermined, leading to operational disruption.
+
+Audit and Compliance Risks: Logs and audit trails may not accurately reflect who made the latest changes, complicating forensic investigations.
+
+Potential Privilege Escalation: A user who should only be able to “wait” for a lock release can illegitimately perform actions as though the lock was never present.
+
+Overall, this vulnerability reduces confidence in the application’s access control mechanisms and creates opportunities for abuse.
+
+Recommendations
+
+Enforce Lock Validation on the Server
+
+Implement lock verification at the API/backend layer.
+
+Every update or edit request should be validated against the current lock state of the Investigation ID.
+
+Reject Unauthorized Requests
+
+If the investigation is already locked by another user, the server must reject subsequent requests with an appropriate error response (e.g., HTTP 403 Forbidden).
+
+Do Not Rely on Client-Side Enforcement
+
+Lock status checks must be validated server-side. Client-side logic (UI messages, disabled buttons) should only complement the enforcement, not replace it.
+
+Testing & Monitoring
+
+Add automated tests to simulate multiple concurrent access attempts.
+
+Log all lock bypass attempts for monitoring and incident response.
+
+Evidence Captions
