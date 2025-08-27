@@ -1,0 +1,12 @@
+import socket, requests, sys
+
+def check(url):
+    try:
+        r = requests.get(url, timeout=10)
+        return (r.status_code, r.text[:120].replace("\n"," ") + "...")
+    except Exception as e:
+        return ("ERR", str(e))
+
+print("graph.microsoft.com ->", socket.gethostbyname_ex("graph.microsoft.com")[2][0])
+print("Check Graph metadata:", check("https://graph.microsoft.com/v1.0/$metadata"))
+print("Check general HTTPS:",  check("https://example.com"))
