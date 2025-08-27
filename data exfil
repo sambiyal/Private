@@ -1,0 +1,11 @@
+import subprocess
+
+# Example: list OneDrive files (replace with your real command)
+command = [
+    "curl",
+    "-H", "Authorization: Bearer YOUR_ONEDRIVE_TOKEN",
+    "https://graph.microsoft.com/v1.0/me/drive/root/children"
+]
+
+result = subprocess.run(command, capture_output=True, text=True)
+print(result.stdout)
