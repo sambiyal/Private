@@ -54,3 +54,26 @@ Content-Length: 72
         }]
     }]
 }
+
+
+
+POST /v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/gemini-2.5-pro:generateContent?key=YOUR_API_KEY HTTP/1.1
+Host: us-central1-aiplatform.googleapis.com
+Content-Type: application/json
+
+{
+  "contents": [
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "Verify API key and model access for Gemini 2.5 Pro."
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "temperature": 0.7,
+    "maxOutputTokens": 256
+  }
+}
