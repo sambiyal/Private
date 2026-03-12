@@ -19,3 +19,6 @@ Windows CMD:
 
 DOS
 curl -X POST "https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/gemini-1.5-flash:streamGenerateContent?key=YOUR_API_KEY" -H "Content-Type: application/json" -d "{\"contents\": [{\"parts\":[{\"text\": \"hi\"}]}]}"
+
+
+curl "https://apikeys.googleapis.com/v2/keys:lookupKey?keyString=YOUR_API_KEY"
