@@ -1,0 +1,21 @@
+The "AI Studio" One-Liner (Most Likely)
+Use this if you just have the key and no Project ID. This is the simplest "ping" test.
+
+Windows CMD:
+
+DOS
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=YOUR_API_KEY" -H "Content-Type: application/json" -X POST -d "{\"contents\": [{\"parts\":[{\"text\": \"hi\"}]}]}"
+Linux / macOS / PowerShell:
+
+Bash
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=YOUR_API_KEY" \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d '{"contents": [{"parts":[{"text": "hi"}]}]}'
+2. The "Vertex AI" One-Liner (Enterprise)
+Use this only if you know your Project ID. Vertex AI requires you to point to a specific "house" (project) in the Google Cloud.
+
+Windows CMD:
+
+DOS
+curl -X POST "https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/gemini-1.5-flash:streamGenerateContent?key=YOUR_API_KEY" -H "Content-Type: application/json" -d "{\"contents\": [{\"parts\":[{\"text\": \"hi\"}]}]}"
