@@ -37,3 +37,20 @@ Content-Length: 72
         }]
     }]
 }
+
+
+
+
+POST /v1/publishers/google/models/gemini-1.5-flash:streamGenerateContent?key=YOUR_API_KEY HTTP/1.1
+Host: aiplatform.googleapis.com
+Content-Type: application/json
+User-Agent: Mozilla/5.0 (BurpSuite)
+Content-Length: 72
+
+{
+    "contents": [{
+        "parts":[{
+            "text": "ping"
+        }]
+    }]
+}
