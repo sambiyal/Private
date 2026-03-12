@@ -22,3 +22,18 @@ curl -X POST "https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PRO
 
 
 curl "https://apikeys.googleapis.com/v2/keys:lookupKey?keyString=YOUR_API_KEY"
+
+
+POST /v1beta/models/gemini-1.5-flash:generateContent?key=YOUR_API_KEY HTTP/1.1
+Host: generativelanguage.googleapis.com
+Content-Type: application/json
+User-Agent: Mozilla/5.0 (BurpSuite)
+Content-Length: 72
+
+{
+    "contents": [{
+        "parts":[{
+            "text": "is this key working?"
+        }]
+    }]
+}
